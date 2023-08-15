@@ -1,0 +1,103 @@
+﻿@page "/Events"
+
+
+
+<h1>Concert Details</h1>
+
+@if (ConcertEvents.Count > 0)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Artist</th>
+                <th>Genre</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Venue</th>
+                <th>Ticket Cost</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var concert in ConcertEvents)
+            {
+                <tr>
+                    <td>@concert.Artist</td>
+                    <td>@concert.Genre</td>
+                    <td>@concert.Date.ToShortDateString()</td>
+                    <td>@concert.Time</td>
+                    <td>@($"{concert.Venue}, {concert.City}")</td>
+                    <td>@concert.TicketCost</td>
+                    <td>@concert.Description</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No concert events available.</p>
+}
+
+<style>
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #f0f0f0;
+    }
+
+    tr:hover {
+        background-color: #f5f5f5;
+    }
+
+    .table thead th {
+        font-weight: bold;
+        color: #333;
+    }
+
+    .table tbody td {
+        font-size: 14px;
+    }
+
+        .table tbody td:nth-child(1) {
+            font-weight: bold;
+        }
+
+        .table tbody td:nth-child(5) {
+            font-style: italic;
+        }
+
+        .table tbody td:nth-child(6) {
+            color: #ff6347;
+        }
+
+        .table tbody td:nth-child(7) {
+            max-width: 300px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+</style>
+
+@code
+{
+    private List<ConcertEvent> ConcertEvents { get; set; } = new List<ConcertEvent>();
+
+    protected override void OnInitialized()
+    {
+        string connectionString = "server=localhost; port=3306; database=Nishit; user=root; password=password";
+        EventsManager eventsManager = new EventsManager(connectionString);
+        ConcertEvents = eventsManager.GetConcertEvents();
+    }
+}

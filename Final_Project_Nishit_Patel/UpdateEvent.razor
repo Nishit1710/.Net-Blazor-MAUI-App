@@ -1,0 +1,145 @@
+﻿@page "/UpdateEvent"
+
+
+@inject NavigationManager NavigationManager
+
+<h1>Update Event</h1>
+
+<form @onsubmit="SearchEvents">
+    <label for="ticketCost">Ticket Cost:</label>
+    <input type="text" id="ticketCost" @bind="searchTicketCost" />
+
+    <button type="submit">Search</button>
+</form>
+
+@if (searchResults != null)
+{
+    <h2>Search Results</h2>
+
+    @foreach (var concert in searchResults)
+    {
+        <div class="concert-card">
+            <h3>@concert.Artist</h3>
+            <p><strong>Genre:</strong> @concert.Genre</p>
+            <p><strong>Date:</strong> @concert.Date.ToShortDateString()</p>
+            <p><strong>Time:</strong> @concert.Time.ToString()</p>
+            <p><strong>Venue:</strong> @concert.Venue, @concert.City</p>
+            <p><strong>Ticket Cost:</strong> @concert.TicketCost</p>
+            <p><strong>Description:</strong> @concert.Description</p>
+
+            <form @onsubmit="() => UpdateEvents(concert)">
+                <label for="newTicketCost">New Ticket Cost:</label>
+                <input type="number" id="newTicketCost" @bind="concert.TicketCost" />
+
+                <label for="newGenre">New Genre:</label>
+                <input type="text" id="newGenre" @bind="concert.Genre" />
+
+                <label for="newDate">New Date:</label>
+                <input type="date" id="newDate" @bind="concert.Date" />
+
+                <label for="newTime">New Time:</label>
+                <input type="time" id="newTime" value="@concertTime" @oninput="UpdateConcertTime" />
+
+
+                <label for="newVenue">New Venue:</label>
+                <input type="text" id="newVenue" @bind="concert.Venue" />
+
+                <label for="newCity">New City:</label>
+                <input type="text" id="newCity" @bind="concert.City" />
+
+                <label for="newDescription">New Description:</label>
+                <textarea id="newDescription" @bind="concert.Description"></textarea>
+
+                <button type="submit">Update Event</button>
+            </form>
+        </div>
+    }
+}
+<style>
+    .concert-card {
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin: 10px;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+
+    h1 {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+
+    h2 {
+        font-size: 20px;
+        margin-top: 20px;
+    }
+
+    h3 {
+        font-size: 18px;
+        margin-top: 0;
+    }
+
+    label {
+        font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    textarea {
+        width: 100%;
+        padding: 5px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+    }
+
+    button[type="submit"] {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 3px;
+        cursor: pointer;
+    }
+</style>
+
+@code {
+    private string concertTime;
+
+    private void UpdateConcertTime(ChangeEventArgs e)
+    {
+        concertTime = e.Value.ToString();
+    }
+
+    private string searchTicketCost = "";
+    private List<ConcertEvent> searchResults;
+
+    private void SearchEvents()
+    {
+        string connectionString = "server=localhost; port=3306; database=Nishit; user=root; password=password";
+        EventsManager eventsManager = new EventsManager(connectionString);
+
+        // Assuming you have a numeric input field for ticket cost named "searchTicketCost"
+        if (decimal.TryParse(searchTicketCost, out decimal ticketCost))
+        {
+            searchResults = eventsManager.SearchConcertEventsByTicketCost(ticketCost);
+        }
+        else
+        {
+            searchResults = new List<ConcertEvent>(); // Empty list to clear previous search results
+        }
+    }
+
+    private void UpdateEvents(ConcertEvent concert)
+    {
+        string connectionString = "server=localhost; port=3306; database=Nishit; user=root; password=password";
+        EventsManager eventsManager = new EventsManager(connectionString);
+        
+        eventsManager.UpdateConcertEvent(concert);
+
+        // Redirect to the "Events" page
+        NavigationManager.NavigateTo("/Events");
+    }
+   
+
+}
